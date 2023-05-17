@@ -1,120 +1,74 @@
-// Realizar una clase “ProductManager” que gestione un conjunto de productos.
 class ProductManager {
-  #products;
+	#products;
 
-  constructor() {
-    // Debe crearse desde su constructor con el elemento products, el cual será un arreglo vacío.
-    this.#products = [];
-  }
+	constructor() {
+		this.#products = [];
+	}
 
-  // Debe contar con un método “getProducts” el cual debe devolver el arreglo con todos los productos creados hasta ese momento
-  getProducts() {
-    return this.#products;
-  }
+	getProducts() {
+		try {
+			return this.#products;
+		} catch (err) {
+			return `Reading error while getting products: ${err}`;
+		}
+	}
 
-  // Debe contar con un método “addProduct” el cual agregará un producto al arreglo de productos inicial.
-  // Cada producto que gestione debe contar con las propiedades: title, description, price, thumbnail, code, stock.
-  addProduct(title, description, price, thumbnail, code, stock) {
-    if (!title || !description || !price || !thumbnail || !code || !stock) {
-      // Validar que todos los campos sean obligatorios
-      console.log("Please fill all the fields");
-    } else if (this.#products.find((product) => product.code === code)) {
-      // Validar que no se repita el campo “code”
-      console.log(`The code ${code} already exists`);
-    } else {
-      // Al agregarlo, debe crearse con un id autoincrementable sin repetirse.
-      const id = this.#products.length + 1;
-      const product = { id, title, description, price, thumbnail, code, stock };
-      this.#products.push(product);
-    }
-  }
+	addProduct(title, description, price, thumbnail, code, stock) {
+		// Validar campos incompletos:
+		if (!title || !description || !price || !thumbnail || !code || !stock) {
+			return `Please fill all the fields to add a product`;
+			// Validar si el código existe:
+		} else if (this.#products.find((product) => product.code === code)) {
+			return `The code "${code}" already exists`;
+		} else {
+			const id = this.#products.length + 1;
+			const product = { id, title, description, price, thumbnail, code, stock };
 
-  // Debe contar con un método “getProductById” el cual debe buscar en el arreglo el producto que coincida con el id
-  getProductById(id) {
-    const product = this.#products.find((product) => product.id === id);
-    if (!product) {
-      // En caso de no coincidir ningún id, mostrar en consola un error
-      console.log(`There's no product with ID ${id}`);
-    } else {
-      console.log(`The product with ID ${id} is: `, product);
-    }
-  }
+			try {
+				// Si es correcto, pushear el producto:
+				this.#products.push(product);
+			} catch (err) {
+				return `Push error while adding the product: ${err}`;
+			}
+		}
+	}
+
+	getProductById(id) {
+		const product = this.#products.find((product) => product.id === id);
+		// Validar si el producto existe:
+		if (product) {
+			return product;
+		} else {
+			return `There's no product with ID ${id}`;
+		}
+	}
 }
 
-// Se creará una instancia de la clase “ProductManager”
+// Caso de uso
 const product = new ProductManager();
 
-// Se llamará “getProducts” recién creada la instancia, debe devolver un arreglo vacío []
-console.log("Array without products: ", product.getProducts());
+product.getProducts();
 
-// Se llamará al método “addProduct” cumpliendo los requerimientos
-try {
-  product.addProduct(
-    "Test product",
-    "This is a test product",
-    200,
-    "No image",
-    "abc123",
-    25
-  );
-} catch (err) {
-  console.log("Catch error:", err);
-}
+// Impresión en consola para validar el funcionamiento:
+console.log("Primer llamado (debe mostrar el array vacío):", product.getProducts());
 
-// Se llamará el método “getProducts”, debe devolver el array con el producto agregado
-console.log("Array with the first product added: ", product.getProducts());
+product.addProduct("Product 1", "Description 1", 100, "Image 1", "code1", 10);
+product.addProduct("Product 2", "Description 2", 200, "Image 2", "code2", 20);
+product.addProduct("Product 3", "Description 3", 300, "Image 3", "code3", 30);
+product.addProduct("Product 4", "Description 4", 400, "Image 4", "code4", 40);
+product.addProduct("Product 5", "Description 5", 500, "Image 5", "code5", 50);
+product.addProduct("Product 6", 600, "Image 6", "code6", 60);
+product.addProduct("Product 7", "Description 7", 700, "Image 7", "code2", 70);
 
-// Se llamará al método “addProduct” repitiendo el campo code
-try {
-  product.addProduct(
-    "Test product",
-    "This is a test product",
-    200,
-    "No image",
-    "abc123",
-    25
-  );
-} catch (err) {
-  console.log("Catch error:", err);
-}
+// Impresión en consola para validar el funcionamiento:
+console.log("Segundo llamado (debe mostrar el array solo con los 5 productos válidos):", product.getProducts());
 
-console.log(
-  "Trying to add a product with the same code: ",
-  product.getProducts()
-);
-
-// Se llamará al método “addProduct” cumpliendo los requerimientos
-try {
-  product.addProduct(
-    "Test product",
-    "This is a test product",
-    200,
-    "No image",
-    "abc1234",
-    25
-  );
-} catch (err) {
-  console.log("Catch error:", err);
-}
-
-// Se llamará el método “getProducts”, debe devolver el array con los dos productos agregados
-console.log("Array with the two products added: ", product.getProducts());
-
-// Se llamará al método “addProduct” sin completar todos los campos
-try {
-  product.addProduct("Test product", 200, "No image", "abc12345", 25);
-} catch (err) {
-  console.log("Catch error:", err);
-}
-
-// Se llamará el método “getProducts”, debe devolver el array con los dos productos agregados, sin agregar el tercer producto por campos incompletos
-console.log(
-  "Trying to add a product without all the fields completed: ",
-  product.getProducts()
-);
-
-// Se evaluará que getProductById devuelva error si no encuentra el producto o el producto en caso de encontrarlo
 product.getProductById(1);
-product.getProductById(5);
-product.getProductById(2);
 product.getProductById(4);
+product.getProductById(6);
+
+// Impresión en consola para validar el funcionamiento:
+console.log("Tercer llamado (debe mostrar el producto 3):", product.getProductById(3));
+
+// Impresión en consola para validar el funcionamiento:
+console.log("Cuarto llamado (debe mostrar error por ID no existente):", product.getProductById(7));
