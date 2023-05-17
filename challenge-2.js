@@ -29,19 +29,19 @@ class ProductManager {
 		}
 	}
 
-  lastId() {
-    const products = this.getProducts();
-    if (products.length > 0) {
-      // Obtener último ID:
-      const lastId = products.reduce((maxId, product) => {
-        return product.id > maxId ? product.id : maxId;
-      }, 0);
-      return lastId;
-    } else {
-      // Si el array está vacío, devolver 0:
-      return 0;
-    }
-  }
+	lastId() {
+		const products = this.getProducts();
+		if (products.length > 0) {
+			// Obtener último ID:
+			const lastId = products.reduce((maxId, product) => {
+				return product.id > maxId ? product.id : maxId;
+			}, 0);
+			return lastId;
+		} else {
+			// Si el array está vacío, devolver 0:
+			return 0;
+		}
+	}
 
 	addProduct(title, description, price, thumbnail, code, stock) {
 		const products = this.getProducts();
