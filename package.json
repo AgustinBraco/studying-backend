@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/AgustinBraco/studying-backend/issues"
   },
-  "homepage": "https://github.com/AgustinBraco/studying-backend#readme"
+  "homepage": "https://github.com/AgustinBraco/studying-backend#readme",
+  "dependencies": {
+    "moment": "^2.29.4"
+  }
 }

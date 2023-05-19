@@ -3,22 +3,22 @@ class ProductManager {
 
 	constructor() {
 		this.#products = [];
-	}
+	};
 
 	getProducts() {
 		try {
 			return this.#products;
 		} catch (err) {
 			return `Reading error while getting products: ${err}`;
-		}
-	}
+		};
+	};
 
 	addProduct(title, description, price, thumbnail, code, stock) {
 		// Validar campos incompletos:
 		if (!title || !description || !price || !thumbnail || !code || !stock) {
 			return `Please fill all the fields to add a product`;
 			// Validar si el código existe:
-		} else if (this.#products.find((product) => product.code === code)) {
+		} else if (this.#products.find(product => product.code === code)) {
 			return `The code "${code}" already exists`;
 		} else {
 			const id = this.#products.length + 1;
@@ -29,20 +29,20 @@ class ProductManager {
 				this.#products.push(product);
 			} catch (err) {
 				return `Push error while adding the product: ${err}`;
-			}
-		}
-	}
+			};
+		};
+	};
 
 	getProductById(id) {
-		const product = this.#products.find((product) => product.id === id);
+		const product = this.#products.find(product => product.id === id);
 		// Validar si el producto existe:
 		if (product) {
 			return product;
 		} else {
 			return `There's no product with ID ${id}`;
-		}
-	}
-}
+		};
+	};
+};
 
 // Caso de uso
 const product = new ProductManager();
