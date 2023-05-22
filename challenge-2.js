@@ -18,9 +18,9 @@ class ProductManager {
 				return `Writing error while getting products: ${err}`;
 			};
 		};
-
+		
+		// Leer archivo y convertirlo en objeto:
 		try {
-			// Leer archivo y convertirlo en objeto:
 			const data = fs.readFileSync(this.#path, "utf8");
 			const dataArray = JSON.parse(data);
 			return dataArray;
@@ -31,17 +31,18 @@ class ProductManager {
 
 	lastId() {
 		const products = this.getProducts();
+
+		// Obtener y devolver último ID:
 		if (products.length > 0) {
-			// Obtener último ID:
 			const lastId = products.reduce((maxId, product) => {
 				return product.id > maxId ? product.id : maxId;
 			}, 0);
 			return lastId;
-		} else {
-			// Si el array está vacío, devolver 0:
-			return 0;
 		};
-	};
+
+		// Si el array está vacío, devolver 0:
+		return 0;
+	}
 
 	addProduct(title, description, price, thumbnail, code, stock) {
 		const products = this.getProducts();
@@ -49,20 +50,21 @@ class ProductManager {
 		// Validar campos incompletos:
 		if (!title || !description || !price || !thumbnail || !code || !stock) {
 			return `Please fill all the fields to add a product`;
-			// Validar si el código existe:
-		} else if (products.some(product => product.code === code)) {
+		};
+
+		// Validar si el código existe:
+		if (products.some((product) => product.code === code)) {
 			return `The code ${code} already exists`;
-		} else {
+		};
+
+		// Si es correcto, escribir el archivo:
+		try {
 			const id = this.lastId() + 1;
 			const product = { id, title, description, price, thumbnail, code, stock };
 			products.push(product);
-
-			try {
-				// Si es correcto, escribir el archivo:
-				fs.writeFileSync(this.#path, JSON.stringify(products));
-			} catch (err) {
-				return `Writing error while adding the product: ${err}`;
-			};
+			fs.writeFileSync(this.#path, JSON.stringify(products));
+		} catch (err) {
+			return `Writing error while adding the product: ${err}`;
 		};
 	};
 
@@ -71,12 +73,12 @@ class ProductManager {
 		const product = products.find(product => product.id === id);
 
 		// Validar si el producto existe:
-		if (product) {
-			return product;
-		} else {
+		if (!product) {
 			return `There's no product with ID ${id}`;
-		};
-	};
+		}
+
+		return product;
+	}
 
 	updateProduct(id, field, value) {
 		const products = this.getProducts();
@@ -85,20 +87,24 @@ class ProductManager {
 		// Validar ID:
 		if (!product) {
 			return `There's no product with ID ${id}`;
-			// Validar campo:
-		} else if (!(field in product)) {
+		};
+
+		// Validar campo:
+		if (!(field in product)) {
 			return `There's no field "${field}" in product ${id}`;
-			// Validar valor:
-		} else if (!value) {
+		};
+
+		// Validar valor:
+		if (!value) {
 			return `The value is incorrect`;
-		} else {
+		};
+
+		// Si es correcto, escribir el archivo:
+		try {
 			product[field] = value;
-			// Si es correcto, escribir el archivo:
-			try {
-				fs.writeFileSync(this.#path, JSON.stringify(products));
-			} catch (err) {
-				return `Writing error while updating the product: ${err}`;
-			};
+			fs.writeFileSync(this.#path, JSON.stringify(products));
+		} catch (err) {
+			return `Writing error while updating the product: ${err}`;
 		};
 	};
 
@@ -107,16 +113,16 @@ class ProductManager {
 		const productIndex = products.findIndex(product => product.id === id);
 
 		// Validar ID:
-		if (productIndex !== -1) {
-			products.splice(productIndex, 1);
-			try {
-				// Si es correcto, escribir el archivo:
-				fs.writeFileSync(this.#path, JSON.stringify(products));
-			} catch (err) {
-				return `Writing error while deleting the product: ${err}`;
-			};
-		} else {
+		if (productIndex === -1) {
 			return `There's no product with ID: ${id}`;
+		};
+
+		// Si es correcto, escribir el archivo:
+		try {
+			products.splice(productIndex, 1);
+			fs.writeFileSync(this.#path, JSON.stringify(products));
+		} catch (err) {
+			return `Writing error while deleting the product: ${err}`;
 		};
 	};
 };
