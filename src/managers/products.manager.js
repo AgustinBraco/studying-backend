@@ -1,6 +1,6 @@
 import fs from "fs";
 
-export default class ProductManager {
+export default class ProductsManager {
 	#products;
 	#path;
 
@@ -19,7 +19,7 @@ export default class ProductManager {
 				return `Writing error while getting products: ${err}`;
 			};
 		};
-		
+
 		// Leer archivo y convertirlo en objeto:
 		try {
 			const data = fs.readFileSync(this.#path, "utf8");
@@ -43,25 +43,34 @@ export default class ProductManager {
 
 		// Si el array está vacío, devolver 0:
 		return 0;
-	}
+	};
 
-	addProduct(title, description, price, thumbnail, code, stock) {
-		const products = this.getProducts();
-
-		// Validar campos incompletos:
-		if (!title || !description || !price || !thumbnail || !code || !stock) {
-			return `Please fill all the fields to add a product`;
-		};
-
-		// Validar si el código existe:
-		if (products.some((product) => product.code === code)) {
-			return `The code ${code} already exists`;
-		};
-
-		// Si es correcto, escribir el archivo:
+	addProduct(newProduct) {
 		try {
+			const products = this.getProducts();
+			
+			// Validar campos incompletos:
+			if (
+				!newProduct.title ||
+				!newProduct.description ||
+				!newProduct.code ||
+				!newProduct.price ||
+				!newProduct.status ||
+				!newProduct.stock ||
+				!newProduct.category
+			) {
+				return `Please fill all the required fields to add a product`;
+			};
+		
+			// Validar si el código existe:
+			if (products.some(product => product.code === newProduct.code)) {
+				return `The code ${code} already exists`;
+			};
+		
+			// Si es correcto, agregar producto con ID y escribir el archivo:
 			const id = this.lastId() + 1;
-			const product = { id, title, description, price, thumbnail, code, stock };
+			newProduct.id = id;
+			const product = newProduct;
 			products.push(product);
 			fs.writeFileSync(this.#path, JSON.stringify(products));
 		} catch (err) {
@@ -70,6 +79,7 @@ export default class ProductManager {
 	};
 
 	getProductById(id) {
+		try {
 		const products = this.getProducts();
 		const product = products.find(product => product.id === id);
 
@@ -77,53 +87,49 @@ export default class ProductManager {
 		if (!product) {
 			return `There's no product with ID ${id}`;
 		}
-
 		return product;
-	}
-
-	updateProduct(id, field, value) {
-		const products = this.getProducts();
-		const product = products.find(product => product.id === id);
-
-		// Validar ID:
-		if (!product) {
-			return `There's no product with ID ${id}`;
+		} catch (err) {
+			return `Reading error while getting the product ${id}: ${err}`;
 		};
+	};
 
-		// Validar campo:
-		if (!(field in product)) {
-			return `There's no field "${field}" in product ${id}`;
-		};
-
-		// Validar valor:
-		if (!value) {
-			return `The value is incorrect`;
-		};
-
-		// Si es correcto, escribir el archivo:
+	updateProduct(id, updatedFields) {
 		try {
-			product[field] = value;
+			const products = this.getProducts();
+			const product = products.find(product => product.id === id);
+
+			// Validar ID:
+			if (!product) {
+				return `There's no product with ID ${id}`;
+			};
+
+			// Si es correcto, actualizar fields y escribir el archivo:
+			for (const key in updatedFields) {
+				if (key !== "id" && product.hasOwnProperty(key)) {
+					product[key] = updatedFields[key];
+				};
+			};
 			fs.writeFileSync(this.#path, JSON.stringify(products));
 		} catch (err) {
-			return `Writing error while updating the product: ${err}`;
+			return `Writing error while updating the product ${id}: ${err}`;
 		};
 	};
 
 	deleteProduct(id) {
-		const products = this.getProducts();
-		const productIndex = products.findIndex(product => product.id === id);
-
-		// Validar ID:
-		if (productIndex === -1) {
-			return `There's no product with ID: ${id}`;
-		};
-
-		// Si es correcto, escribir el archivo:
 		try {
+			const products = this.getProducts();
+			const productIndex = products.findIndex(product => product.id === id);
+
+			// Validar ID:
+			if (productIndex === -1) {
+				return `There's no product with ID: ${id}`;
+			};
+
+			// Si es correcto, borrar producto y escribir el archivo:
 			products.splice(productIndex, 1);
 			fs.writeFileSync(this.#path, JSON.stringify(products));
 		} catch (err) {
-			return `Writing error while deleting the product: ${err}`;
+			return `Writing error while deleting the product ${id}: ${err}`;
 		};
 	};
 };

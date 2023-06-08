@@ -1,40 +1,19 @@
 import express from "express";
+import carts from "./routes/carts.router.js";
+import products from "./routes/products.router.js";
+
 const app = express();
-const port = 3000;
+const port = 8080;
 
-import ProductManager from "./productManager.js";
-const productManager = new ProductManager("products");
-
-// Middleware para uso de querys:
+// Middlewares
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use("/static", express.static("../public"));
+app.use("/api/products", products);
+app.use("/api/carts", carts);
 
-// Endpoint para mostrar los productos:
-app.get("/products", async (req, res) => {
-	try {
-		const { limit } = req.query;
-		const products = await productManager.getProducts();
-		if (limit) {
-			// Limitar array según valor de 'limit':
-			const limitedProducts = products.slice(0, limit);
-			return res.json(limitedProducts);
-		}
-		res.json(products);
-	} catch (err) {
-		return res.status(500).json({ error: err.message });
-	}
-});
-
-// Endpoint para mostrar un producto según ID:
-app.get("/products/:pid", async (req, res) => {
-	try {
-		// Tomar 'id', convertirlo en número entero y buscar el producto:
-		const { pid } = req.params;
-		const productId = parseInt(pid);
-		const product = await productManager.getProductById(productId);
-		return res.json(product);
-	} catch (err) {
-		return res.status(500).json({ error: err.message });
-	}
+app.get("/", (req, res) => {
+	res.send("HOME");
 });
 
 app.listen(port, () => {
