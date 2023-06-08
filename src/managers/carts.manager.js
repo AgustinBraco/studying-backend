@@ -6,7 +6,7 @@ export default class CartsManager {
 
 	constructor(fileName) {
 		this.#carts = [];
-		this.#path = `${fileName}.json`;
+		this.#path = `./src/${fileName}.json`;
 	};
 
 	getCarts() {
@@ -57,6 +57,7 @@ export default class CartsManager {
 			// Agregar carrito y escribir el archivo:
 			carts.push(newCart);
 			fs.writeFileSync(this.#path, JSON.stringify(carts));
+			return `Cart added with ID ${id}`;
 		} catch (err) {
 			return `Writing error while adding the cart: ${err}`;
 		};
@@ -95,6 +96,7 @@ export default class CartsManager {
 				cart.products.push(newProduct);
 			};
 			fs.writeFileSync(this.#path, JSON.stringify(carts));
+			return `Product ${productId} added to cart ${cartId}`;
 		} catch (err) {
 			return `Writing error while adding the product ${productId} to cart ${cartId}: ${err}`;
 		};
@@ -107,12 +109,13 @@ export default class CartsManager {
 
 			// Validar ID:
 			if (cartIndex === -1) {
-				return `There's no cart with ID: ${id}`;
+				return `There's no cart with ID ${id}`;
 			};
 
 			// Si es correcto, borrar carrito y escribir el archivo:
 			carts.splice(cartIndex, 1);
 			fs.writeFileSync(this.#path, JSON.stringify(carts));
+			return `Cart deleted`;
 		} catch (err) {
 			return `Writing error while deleting the cart ${id}: ${err}`;
 		};

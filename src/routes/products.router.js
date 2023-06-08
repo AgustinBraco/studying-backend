@@ -39,11 +39,10 @@ products.post("/", async (req, res) => {
 	try {
 		// Tomar body y agregar el producto:
 		const newProduct = req.body;
-		productsManager.addProduct(newProduct);
+		const postResponse = productsManager.addProduct(newProduct);
 
 		// Obtener y devolver array actualizado:
-		const products = await productsManager.getProducts();
-		return res.status(200).json(products);
+		return res.status(200).json(postResponse);
 	} catch (err) {
 		return res.status(500).json({ error: err.message });
 	};
@@ -56,11 +55,10 @@ products.put("/:pid", async (req, res) => {
 		const { pid } = req.params;
 		const productId = parseInt(pid);
 		const updatedFields = req.body;
-		productsManager.updateProduct(productId, updatedFields);
+		const putResponse = productsManager.updateProduct(productId, updatedFields);
 
 		// Obtener y devolver array actualizado:
-		const products = await productsManager.getProducts();
-		return res.status(200).json(products);
+		return res.status(200).json(putResponse);
 	} catch (err) {
 		return res.status(500).json({ error: err.message });
 	};
@@ -72,11 +70,10 @@ products.delete("/:pid", async (req, res) => {
 		// Tomar ID, convertirlo en número entero y borrar producto:
 		const { pid } = req.params;
 		const productId = parseInt(pid);
-		productsManager.deleteProduct(productId);
+		const deleteResponse = productsManager.deleteProduct(productId);
 
 		// Obtener y devolver array actualizado:
-		const products = await productsManager.getProducts();
-		return res.status(200).json(products);
+		return res.status(200).json(deleteResponse);
 	} catch (err) {
 		return res.status(500).json({ error: err.message });
 	};

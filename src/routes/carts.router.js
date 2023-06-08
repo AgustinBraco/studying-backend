@@ -7,8 +7,8 @@ const carts = Router();
 // Endpoint para agregar un carrito:
 carts.post("/", async (req, res) => {
 	try {
-		cartsManager.addCart();
-		return res.status(200).send("Cart added");
+		const postResponse = cartsManager.addCart();
+		return res.status(200).send(postResponse);
 	} catch (err) {
 		return res.status(500).json({ error: err.message });
 	};
@@ -52,9 +52,9 @@ carts.delete("/:cid", async (req, res) => {
 		// Tomar ID, convertirlos en entero y borrar carrito:
 		const { cid } = req.params;
 		const cartId = parseInt(cid);
-		cartsManager.deleteCart(cartId);
-
-		return res.status(200).send("Cart deleted");
+		
+		const deleteResponse = cartsManager.deleteCart(cartId);
+		return res.status(200).send(deleteResponse);
 	} catch (err) {
 		return res.status(500).json({ error: err.message });
 	};

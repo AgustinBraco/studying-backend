@@ -6,7 +6,7 @@ export default class ProductsManager {
 
 	constructor(fileName) {
 		this.#products = [];
-		this.#path = `${fileName}.json`;
+		this.#path = `./src/${fileName}.json`;
 	};
 
 	getProducts() {
@@ -63,8 +63,8 @@ export default class ProductsManager {
 			};
 		
 			// Validar si el código existe:
-			if (products.some(product => product.code === newProduct.code)) {
-				return `The code ${code} already exists`;
+			if (products.some(product => product.code == newProduct.code)) {
+				return `The code ${newProduct.code} already exists`;
 			};
 		
 			// Si es correcto, agregar producto con ID y escribir el archivo:
@@ -73,6 +73,7 @@ export default class ProductsManager {
 			const product = newProduct;
 			products.push(product);
 			fs.writeFileSync(this.#path, JSON.stringify(products));
+			return `Product ${newProduct.id} added`;
 		} catch (err) {
 			return `Writing error while adding the product: ${err}`;
 		};
@@ -105,11 +106,18 @@ export default class ProductsManager {
 
 			// Si es correcto, actualizar fields y escribir el archivo:
 			for (const key in updatedFields) {
-				if (key !== "id" && product.hasOwnProperty(key)) {
-					product[key] = updatedFields[key];
+				if (key.toLowerCase() === "id") {
+					return `You can't update the ID field`;
 				};
+
+				if (!product.hasOwnProperty(key)) {
+					return `Some field/s doesn't exist/s`;
+				};
+
+				product[key] = updatedFields[key];
 			};
 			fs.writeFileSync(this.#path, JSON.stringify(products));
+			return `Product ${id} updated`;
 		} catch (err) {
 			return `Writing error while updating the product ${id}: ${err}`;
 		};
@@ -122,12 +130,13 @@ export default class ProductsManager {
 
 			// Validar ID:
 			if (productIndex === -1) {
-				return `There's no product with ID: ${id}`;
+				return `There's no product with ID ${id}`;
 			};
 
 			// Si es correcto, borrar producto y escribir el archivo:
 			products.splice(productIndex, 1);
 			fs.writeFileSync(this.#path, JSON.stringify(products));
+			return `Cart ${id} deleted`;
 		} catch (err) {
 			return `Writing error while deleting the product ${id}: ${err}`;
 		};
