@@ -8,7 +8,7 @@ const port = 8080;
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use("/static", express.static("../public"));
+app.use("/static", express.static("./src/public"));
 app.use("/api/products", products);
 app.use("/api/carts", carts);
 
