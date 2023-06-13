@@ -1,8 +1,10 @@
+// Express
 import { Router } from "express";
-import ProductsManager from "../managers/products.manager.js";
-
-const productsManager = new ProductsManager("products");
 const products = Router();
+
+// Product manager
+import ProductsManager from "../managers/products.manager.js";
+const productsManager = new ProductsManager("products");
 
 // Endpoint para mostrar los productos con query de límite:
 products.get("/", async (req, res) => {

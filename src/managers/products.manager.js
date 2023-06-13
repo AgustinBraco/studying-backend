@@ -6,7 +6,7 @@ export default class ProductsManager {
 
 	constructor(fileName) {
 		this.#products = [];
-		this.#path = `./src/${fileName}.json`;
+		this.#path = `./src/data/${fileName}.json`;
 	};
 
 	getProducts() {
@@ -136,7 +136,7 @@ export default class ProductsManager {
 			// Si es correcto, borrar producto y escribir el archivo:
 			products.splice(productIndex, 1);
 			fs.writeFileSync(this.#path, JSON.stringify(products));
-			return `Cart ${id} deleted`;
+			return `Product ${id} deleted`;
 		} catch (err) {
 			return `Writing error while deleting the product ${id}: ${err}`;
 		};

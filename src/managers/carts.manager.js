@@ -6,7 +6,7 @@ export default class CartsManager {
 
 	constructor(fileName) {
 		this.#carts = [];
-		this.#path = `./src/${fileName}.json`;
+		this.#path = `./src/data/${fileName}.json`;
 	};
 
 	getCarts() {
@@ -105,17 +105,17 @@ export default class CartsManager {
 	deleteCart(id) {
 		try {
 			const carts = this.getCarts();
-			const cartIndex = carts.findIndex(cart => cart.id === id);
+			const cart = carts.find(cart => cart.id === id);
 
 			// Validar ID:
-			if (cartIndex === -1) {
+			if (!cart) {
 				return `There's no cart with ID ${id}`;
 			};
 
 			// Si es correcto, borrar carrito y escribir el archivo:
-			carts.splice(cartIndex, 1);
+			cart.products = [];
 			fs.writeFileSync(this.#path, JSON.stringify(carts));
-			return `Cart deleted`;
+			return `Cart ${id} deleted`;
 		} catch (err) {
 			return `Writing error while deleting the cart ${id}: ${err}`;
 		};

@@ -1,8 +1,10 @@
+// Express
 import { Router } from "express";
-import CartsManager from "../managers/carts.manager.js";
-
-const cartsManager = new CartsManager("carts");
 const carts = Router();
+
+// Carts manager
+import CartsManager from "../managers/carts.manager.js";
+const cartsManager = new CartsManager("carts");
 
 // Endpoint para agregar un carrito:
 carts.post("/", async (req, res) => {

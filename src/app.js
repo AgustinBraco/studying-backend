@@ -1,21 +1,48 @@
+// Express
 import express from "express";
-import carts from "./routes/carts.router.js";
-import products from "./routes/products.router.js";
-
 const app = express();
 const port = 8080;
+
+// Rutas
+import productsRoute from "./routes/products.router.js";
+import cartsRoute from "./routes/carts.router.js";
+import viewsRoute from "./routes/views.router.js";
+
+// Data
+import products from "./data/products.json" assert { type: "json" };
+
+// Socket
+import { Server } from "socket.io";
+
+// Handlebars
+import handlebars from "express-handlebars";
+import __dirname from "./utils.js";
+app.engine("handlebars", handlebars.engine());
+app.set("views", __dirname + "/views");
+app.set("view engine", "handlebars");
+app.use(express.static(__dirname + "/public"));
 
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use("/static", express.static("./src/public"));
-app.use("/api/products", products);
-app.use("/api/carts", carts);
+app.use("/api/products", productsRoute);
+app.use("/api/carts", cartsRoute);
+app.use("/", viewsRoute);
 
-app.get("/", (req, res) => {
-	res.send("HOME");
+// Server en 8080
+const httpServer = app.listen(port, () => {
+	console.log(`Server listening on http://localhost:${port}`);
 });
 
-app.listen(port, () => {
-	console.log(`Server listening on http://localhost:${port}`);
+// Escuchar server
+const io = new Server(httpServer);
+io.on("connection", (socket) => {
+	console.log("New client connected");
+
+	// Enviar productos
+	socket.emit("products", products);
+
+	socket.on("disconnect", () => {
+		console.log("Client disconnected");
+	});
 });
