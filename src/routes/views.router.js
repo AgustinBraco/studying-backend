@@ -22,4 +22,12 @@ views.get("/realtimeproducts", (req, res) => {
 	});
 });
 
+// Endpoint para renderizar chat con socket:
+views.get("/chat", (req, res) => {
+	res.render("chat", {
+		style: "styles.css",
+		documentTitle: "Chat",
+	});
+});
+
 export default views;

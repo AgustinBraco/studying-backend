@@ -34,14 +34,30 @@ const httpServer = app.listen(port, () => {
 	console.log(`Server listening on http://localhost:${port}`);
 });
 
-// Escuchar server
 const io = new Server(httpServer);
+const messages = [];
+
+// Escuchar conexiones
 io.on("connection", (socket) => {
 	console.log("New client connected");
 
 	// Enviar productos
 	socket.emit("products", products);
 
+	// Chat
+	io.emit("messagesLogs", messages);
+
+	socket.on("user", data => {
+		messages.push(data);
+		io.emit("messagesLogs", messages);
+	});
+
+	socket.on("message", data => {
+		messages.push(data);
+		io.emit("messagesLogs", messages);
+	});
+
+	// Aviso de desconexión
 	socket.on("disconnect", () => {
 		console.log("Client disconnected");
 	});
