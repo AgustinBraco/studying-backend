@@ -83,9 +83,6 @@ export default class CartsManager {
 			const carts = this.getCarts();
 			const cart = carts.find(cart => cart.id === cartId);
 
-			// const productToAdd = productsManager.getProductById(productId);
-			// console.log(productToAdd);
-
 			const product = cart.products.find(product => product.product === productId);
 
 			// Validar si el producto ya está agregado:

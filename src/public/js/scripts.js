@@ -26,12 +26,13 @@ let chatBox = document.querySelector(".input-text");
 // Alerta para ingresar el nombre
 Swal.fire({
   title: "Welcome",
-  text: "Please enter your name",
+  text: "Please enter your email",
   input: "text",
   inputValidator: value => {
-    if (!value) {
-      return `You must complete your name to chat.`;
-    };
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value.match(regex)) {
+      return `You must complete your email to chat.`;
+    }
   },
   allowOutsideClick: false,
   allowEscapeKey: false

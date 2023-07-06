@@ -1,79 +1,94 @@
-// Express
 import { Router } from "express";
+import { cartModel } from "../dao/mongo/models/cart.model.js";
+import { productModel } from "../dao/mongo/models/product.model.js";
+
 const carts = Router();
 
-// Managers
-import CartsManager from "../managers/carts.manager.js";
-const cartsManager = new CartsManager("carts");
-import ProductsManager from "../managers/products.manager.js";
-const productsManager = new ProductsManager("products");
-
-// Endpoint para agregar un carrito:
-carts.post("/", async (req, res) => {
+// Endpoint para obtener carritos de MongoDB:
+carts.get("/", async (req, res) => {
 	try {
-		const postResponse = cartsManager.addCart();
-		return res.status(200).send(postResponse);
+		let result = await cartModel.find();
+		return res.status(200).json({ status: "success", payload: result });
 	} catch (err) {
 		return res.status(500).json({ error: err.message });
-	};
+	}
 });
 
-// Endpoint para buscar un carrito por ID:
-carts.get("/:cid", async (req, res) => {
+// Endpoint para obtener un carrito según ID:
+carts.get("/:id", async (req, res) => {
 	try {
-		// Tomar ID, convertirlo en entero y buscar carrito:
-		const { cid } = req.params;
-		const cartId = parseInt(cid);
+		const { id } = req.params;
+		let result = await cartModel.findById(id);
 
-		// Obtener y devolver carrito actualizado:
-		const cart = await cartsManager.getCartById(cartId);
-		return res.status(200).json(cart);
-	} catch (err) {
-		return res.status(500).json({ error: err.message });
-	};
-});
-
-// Endpoint para agregar un producto a un carrito:
-carts.post("/:cid/product/:pid", async (req, res) => {
-	try {
-		// Tomar IDs, convertirlos en entero y agregar producto al carrito:
-		const { cid, pid } = req.params;
-		const cartId = parseInt(cid);
-		const productId = parseInt(pid);
-
-		// Validar producto:
-		const product = productsManager.getProductById(productId);
-
-		// Si no existe, devolver error:
-		if (typeof product === "string") {
-			return res.status(200).send(product);
+		if (!result) {
+			return res.status(200).send(`Wrong ID`);
 		}
 
-		// Si existe, agregar producto al carrito:
-		cartsManager.addProductToCart(cartId, productId);
-
-		// Obtener y devolver carrito actualizado:
-		const cart = await cartsManager.getCartById(cartId);
-		return res.status(200).json(cart);
+		return res.status(200).json({ status: "success", payload: result });
 	} catch (err) {
 		return res.status(500).json({ error: err.message });
-	};
+	}
 });
 
-// Endpoint para borrar un carrito:
-carts.delete("/:cid/product/:pid", async (req, res) => {
+// Endpoint para agregar un carrito a MongoDB:
+carts.post("/", async (req, res) => {
 	try {
-		// Tomar IDs, convertirlos en entero y borrar carrito:
-		const { cid, pid } = req.params;
-		const cartId = parseInt(cid);
-		const productId = parseInt(pid);
+		const result = await cartModel.create({
+			products: [],
+		});
 
-		// Borrar carrito y devolver respuesta:
-		const deleteResponse = cartsManager.deleteCart(cartId, productId);
-		return res.status(200).send(deleteResponse);
+		return res.status(200).json({ status: "success", payload: result });
 	} catch (err) {
 		return res.status(500).json({ error: err.message });
-	};
+	}
+});
+
+// Endpoint para agregar un producto a un carrito a MongoDB segun IDs:
+carts.post("/:cid/product/:pid", async (req, res) => {
+	try {
+		const { cid, pid } = req.params;
+		const newProduct = await productModel.findById(pid);
+		const cart = await cartModel.findById(cid);
+
+		const productInCart = await cart.products.find(
+			(product) => product.code === newProduct.code
+		);
+
+		if (!productInCart) {
+			const create = {
+				$push: { products: { code: newProduct.code, quantity: 1 } },
+			};
+			await cartModel.findByIdAndUpdate({ _id: cid }, create);
+
+			const result = await cartModel.findById(cid);
+			return res.status(200).json({ status: "success", payload: result });
+		}
+
+		await cartModel.findByIdAndUpdate(
+			{ _id: cid },
+			{ $inc: { "products.$[elem].quantity": 1 } },
+			{ arrayFilters: [{ "elem.code": newProduct.code }] },
+		);
+
+		const result = await cartModel.findById(cid);
+
+		return res.status(200).json({ status: "success", payload: result });
+	} catch (err) {
+		return res.status(500).json({ error: err.message });
+	}
+});
+
+// Endpoint para borrar un carrito en MongoDB según ID:
+carts.delete("/:id", async (req, res) => {
+	try {
+		const { id } = req.params;
+		await cartModel.deleteOne({ _id: id });
+
+		const result = await cartModel.find();
+		return res.status(200).json({ status: "success", payload: result });
+	} catch (err) {
+		return res.status(500).json({ error: err.message });
+	}
 });
 
 export default carts;
