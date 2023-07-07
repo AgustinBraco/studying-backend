@@ -12,15 +12,12 @@ import viewsRoute from "./routes/views.router.js";
 // Data
 import products from "./data/products.json" assert { type: "json" };
 
-// Mongoose schema
-import { messageModel } from "./dao/mongo/models/messages.model.js"
-
-// Socket
-import { Server } from "socket.io";
-
 // Mongoose
 import mongoose from "mongoose";
-mongoose.connect("mongodb+srv://bracoagustin:J2P8TJF36AjvHMhI@cluster1.bysdr0i.mongodb.net/?retryWrites=true&w=majority");
+import { messageModel } from "./dao/mongo/models/messages.model.js";
+mongoose.connect(
+	"mongodb+srv://bracoagustin:J2P8TJF36AjvHMhI@cluster1.bysdr0i.mongodb.net/?retryWrites=true&w=majority"
+);
 
 // Handlebars
 import handlebars from "express-handlebars";
@@ -37,7 +34,8 @@ app.use("/api/products", productsRoute);
 app.use("/api/carts", cartsRoute);
 app.use("/", viewsRoute);
 
-// Server en 8080
+// Socket & Server:
+import { Server } from "socket.io";
 const httpServer = app.listen(port, host, () => {
 	console.log(`Server listening on http://${host}:${port}`);
 });
@@ -45,31 +43,28 @@ const httpServer = app.listen(port, host, () => {
 const io = new Server(httpServer);
 const messages = [];
 
-// Escuchar conexiones
 io.on("connection", (socket) => {
 	console.log("New client connected");
 
-	// Enviar productos
 	socket.emit("products", products);
 
 	// Chat
 	io.emit("messagesLogs", messages);
-
-	socket.on("user", data => {
+	
+	socket.on("user", (data) => {
 		messages.push(data);
 		io.emit("messagesLogs", messages);
 	});
 
-	socket.on("message", data => {
+	socket.on("message", (data) => {
 		messages.push(data);
 		io.emit("messagesLogs", messages);
 		messageModel.create({
-      user: data.user,
-      message: data.message,
+			user: data.user,
+			message: data.message,
 		});
 	});
 
-	// Aviso de desconexión
 	socket.on("disconnect", () => {
 		console.log("Client disconnected");
 	});

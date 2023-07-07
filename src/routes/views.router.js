@@ -10,7 +10,7 @@ views.get("/", (req, res) => {
 	res.render("home", {
 		style: "styles.css",
 		documentTitle: "Home",
-		products
+		products,
 	});
 });
 
