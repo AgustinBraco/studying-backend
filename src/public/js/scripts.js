@@ -18,7 +18,7 @@ socket.on("products", (products) => {
 	updateProducts(products);
 });
 
-
+// Chat:
 let user;
 let chatBox = document.querySelector(".input-text");
 
@@ -40,19 +40,20 @@ Swal.fire({
 	socket.emit("user", { user, message: "Join the chat." });
 });
 
-// Listener del input para detectar al presionar Enter:
-chatBox.addEventListener("keypress", (e) => {
-	if (e.key === "Enter" && chatBox.value.trim().length > 0) {
-		socket.emit("message", { user, message: chatBox.value });
-		chatBox.value = "";
-	}
-});
-
-socket.on("messagesLogs", (data) => {
+// Listener para los mesajes:
+socket.on("messagesDB", (data) => {
 	let log = document.querySelector(".chat-message");
 	let messages = "";
 	data.forEach(message => {
 		messages += `<p><strong>${message.user}</strong>: ${message.message}</p>`;
 	});
 	log.innerHTML = messages;
+});
+
+// Listener del input para detectar al presionar Enter:
+chatBox.addEventListener("keypress", (e) => {
+	if (e.key === "Enter" && chatBox.value.trim().length > 0) {
+		socket.emit("message", { user, message: chatBox.value });
+		chatBox.value = "";
+	}
 });

@@ -8,6 +8,9 @@ const host = "0.0.0.0";
 import productsRoute from "./routes/products.router.js";
 import cartsRoute from "./routes/carts.router.js";
 import viewsRoute from "./routes/views.router.js";
+import messagesRoute from "./routes/messages.router.js";
+import cookiesRoute from "./routes/cookies.router.js";
+import sessionsRoute from "./routes/sessions.router.js";
 
 // Data
 import products from "./data/products.json" assert { type: "json" };
@@ -32,6 +35,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/api/products", productsRoute);
 app.use("/api/carts", cartsRoute);
+app.use("/cookies", cookiesRoute);
+app.use("/sessions", sessionsRoute);
+app.use("/messages", messagesRoute);
 app.use("/", viewsRoute);
 
 // Socket & Server:
@@ -41,31 +47,34 @@ const httpServer = app.listen(port, host, () => {
 });
 
 const io = new Server(httpServer);
-const messages = [];
 
-io.on("connection", (socket) => {
-	console.log("New client connected");
+io.on("connection", async (socket) => {
+	console.log(`Client ${socket.id} connected`);
 
 	socket.emit("products", products);
 
-	// Chat
-	io.emit("messagesLogs", messages);
-	
-	socket.on("user", (data) => {
-		messages.push(data);
-		io.emit("messagesLogs", messages);
-	});
-
-	socket.on("message", (data) => {
-		messages.push(data);
-		io.emit("messagesLogs", messages);
-		messageModel.create({
+	// Recibir usuarios, mensajes y crear entrada en DB:
+	socket.on("user", async (data) => {
+		await messageModel.create({
 			user: data.user,
 			message: data.message,
 		});
+
+		const messagesDB = await messageModel.find();
+		io.emit("messagesDB", messagesDB);
+	});
+
+	socket.on("message", async (data) => {
+		await messageModel.create({
+			user: data.user,
+			message: data.message,
+		});
+
+		const messagesDB = await messageModel.find();
+		io.emit("messagesDB", messagesDB);
 	});
 
 	socket.on("disconnect", () => {
-		console.log("Client disconnected");
+		console.log(`Client ${socket.id} disconnected`);
 	});
 });
